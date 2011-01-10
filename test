@@ -1,0 +1,28 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Client;
+use Try::Tiny;
+
+print "Starting...\n\n";
+
+my $c = Client->load( 'conf' );
+my $es = $c->get_empire_status;
+
+
+
+for my $p_id ( $es->planets ) {
+    warn "===============> Checking Planet $p_id\n";
+    my $bb = $c->get_body_buildings( $p_id );
+
+    warn "Got BB $bb: " . $bb->dump;
+    for my $b_id ( $bb->buildings ) {
+        my $bs = $c->get_building_status($b_id);
+    }
+}
+
+
+print "DONE\n";
+
