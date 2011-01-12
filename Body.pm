@@ -127,6 +127,14 @@ sub new_from_id {
             stored   => $d->{waste_stored},
             capacity => $d->{waste_capacity}
         );
+
+        my %buildings;
+        for my $bdg_id ( @{$d->{buildings}} ) {
+            my $b = Building->new_from_id( $client, $bdg_id );
+            $buildings{$bdg_id} = $b;
+        }
+
+        $owned{buildings} = \%buildings;
     }
 
 

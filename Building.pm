@@ -1,49 +1,79 @@
-package Body.pm;
+package Building;
 
 use Moose;
+use Point;
+use WorkInProgress;
 
-has buildings => (
+use Carp qw( croak );
+
+
+has name => (
     is     => 'ro',
-    isa    => 'HashRef[Building]',
-    traits => ['Hash'],
+    isa    => 'Str',
     lazy_build => 1,
 );
 
-has ore => (
+has location => (
     is     => 'ro',
-    isa    => 'HashRef[Int]',
-    traits => ['Hash'],
+    isa    => 'Point',
+    handles => [qw( x y )],
 );
 
-has empire => (
-    is     => 'ro',
-    isa    => 'Empire',
-    lazy_build => 1,
-);
-
-has [qw( id name star_id type image )] => (
+has url => (
     is     => 'ro',
     isa    => 'Str',
 );
 
-has [qw(
-    orbit
-    size
-    x
-    y
-    water
-)] => (
+has level => (
+    is     => 'ro',
+    isa    => 'Int',
+);
+
+has image => (
+    is  => 'ro',
+    isa => 'Str',
+);
+
+has efficiency => (
     is  => 'ro',
     isa => 'Int',
 );
 
-has star => (
-    is     => 'ro',
-    isa    => 'Star',
-    lazy_build => 1,
+has pending_build => (
+    is  => 'ro',
+    isa => 'WorkInProgress',
+);
+
+has work => (
+    is  => 'ro',
+    isa => 'WorkInProgress',
 );
 
 
-__PACKAGE__->meta->make_immutable;
-no Moose;
+
+sub new_from_id {
+    my $class  = shift;
+    my $client = shift;
+    my $id     = shift;
+
+    my $bs = $client->get_building_status( $id );
+
+    my $d = $bs->data;
+
+    my %args; 
+    {   my @attrs = qw( id name url level image efficiency );
+        @args{@attrs} = @{$d}{@attrs};
+        $args{location} = Point->new( x => $d->{x}, y => $d->{y} );
+
+        $args{pending_build} = WorkInProgress->new( %{$d->{pending_build}})
+            if exists $d->{pending_build};
+
+        $args{work} = WorkInProgress->new( %{$d->{work}})
+            if exists $d->{work};
+    }
+
+    $class->new( %args );
+}
+
+
 1;
