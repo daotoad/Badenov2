@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Client;
-use Try::Tiny;
+use Body;
 
 print "Starting...\n\n";
 
@@ -12,17 +12,23 @@ my $c = Client->load( 'conf' );
 my $es = $c->get_empire_status;
 
 
+my %activity;
 
+my @bodies;
 for my $p_id ( $es->planets ) {
     warn "===============> Checking Planet $p_id\n";
-    my $bb = $c->get_body_buildings( $p_id );
 
-    warn "Got BB $bb: " . $bb->dump;
-    for my $b_id ( $bb->buildings ) {
-        my $bs = $c->get_building_status($b_id);
-    }
+    my $b = Body->new_from_id( $c, $p_id );
+
+    push @bodies, $b;
 }
 
+for my $b ( @bodies ) {
 
-print "DONE\n";
+    printf "%20s %s\n", $b->name, $b->location;
+    print join "\n", $b->food, $b->energy, $b->ore, $b->water, $b->waste, $b->happiness, "";
+
+
+}
+
 

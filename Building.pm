@@ -21,11 +21,6 @@ has empire => (
     lazy_build => 1,
 );
 
-has orbit => (
-    is     => 'ro',
-    isa    => 'Int',
-);
-
 has [qw( id name star_id type image )] => (
     is     => 'ro',
     isa    => 'Str',
@@ -44,11 +39,11 @@ has [qw(
 
 has star => (
     is     => 'ro',
-    isa    => 'Int',
+    isa    => 'Star',
     lazy_build => 1,
 );
 
 
-
-
+__PACKAGE__->meta->make_immutable;
+no Moose;
 1;
