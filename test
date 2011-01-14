@@ -5,25 +5,25 @@ use warnings;
 
 use Client;
 use Body;
+use Empire;
 
 print "Starting...\n\n";
 
 my $c = Client->load( 'conf' );
-my $es = $c->get_empire_status;
+my $empire = Empire->get_mine($c);
+
+print "\n"x4 ,"Empire: ", $empire->name, "\n";
+
+my $home = $empire->home_planet();
+my $star = $home->star;
+
+printf "Home Planet: %s at orbit %0d of %s\n", $home->name, $home->orbit, $star->name;
 
 
 my %activity;
 
 my @bodies;
-for my $p_id ( $es->planets ) {
-    warn "===============> Checking Planet $p_id\n";
-
-    my $b = Body->new_from_id( $c, $p_id );
-
-    push @bodies, $b;
-}
-
-for my $b ( @bodies ) {
+for my $b ( $empire->planets ) {
 
     printf "%20s %s\n", $b->name, $b->location;
     print join "\n", $b->food, $b->energy, $b->ore, $b->water, $b->waste, $b->happiness, "";

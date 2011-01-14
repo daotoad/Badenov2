@@ -109,5 +109,7 @@ sub as_string {
     return sprintf "%s: %0d at %0d per hour", $self->type, $self->stored, $self->per_hour
 }
 
+__PACKAGE__->meta->make_immutable;
+no Moose;
 
 1;

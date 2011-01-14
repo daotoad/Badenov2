@@ -15,6 +15,7 @@ use API::Error;
 use API::Session;
 use API::Body;
 use API::Status;
+use API::Star;
 
 has [qw( 
     api_key
@@ -312,23 +313,22 @@ sub get_server_status {
 }
 
 sub get_star {
-    my $self =shift;
-    my $star_id = shift;
+    my $self = shift;
+    my $id = shift;
 
-    my $data = $self->load_star( id => $star_id );
+    my $s = API::Star->load( $self, $id );
+    return $s if $s;
 
-    return $data if $data;
+    my $result = $self->api_call( 'map', get_star => $self->get_session_id, $id );
 
-    my $result = $self->api_call( 'map', get_star => $self->get_session_id, $star_id );
-    
-    $result->{data}{star}{id} = $star_id;
+    $result->{result}{star}{id} = $id;
 
-    API::BodyStatus->cache( $self, $_->{id}, $_ )
-        for @{$result->{stars}{bodies}};
+    API::BodyStatus->cache( $self, $_->{id}, $_ ), $_ = $_->{id}
+        for @{$result->{result}{star}{bodies}};
 
-    $self->cache_star( $result->{star} );
+    $s = API::Star->cache( $self, $id, $result->{result}{star} );
 
-    return $result->{star};
+    return $s;
 }
 
 

@@ -6,6 +6,7 @@ use WorkInProgress;
 
 use Carp qw( croak );
 
+use overload '""' => \&as_string;
 
 has name => (
     is     => 'ro',
@@ -75,5 +76,13 @@ sub new_from_id {
     $class->new( %args );
 }
 
+sub as_string {
+    my $self = shift;
+
+    return sprintf "%s %0d", $self->name, $self->level; 
+}
+
+__PACKAGE__->meta->make_immutable;
+no Moose;
 
 1;

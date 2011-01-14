@@ -34,4 +34,7 @@ sub as_string {
     return sprintf "(%.3d,%.3d)", $self->x, $self->y;
 }
 
+__PACKAGE__->meta->make_immutable;
+no Moose;
+
 1;

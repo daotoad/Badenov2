@@ -3,6 +3,8 @@ package Body;
 use Moose;
 use Point;
 use Resource;
+use LazyObject;
+use Star;
 
 use Carp qw( croak );
 
@@ -51,9 +53,13 @@ has location => (
 );
 
 has star => (
-    is     => 'ro',
-    isa    => 'Int',
-    lazy_build => 1,
+    isa    => 'LazyObject',
+    handles => {
+        has_star   => 'has_item',
+        clear_star => 'clear_item',
+        star       => 'get_item',
+    }
+
 );
 
 
@@ -81,6 +87,13 @@ sub new_from_id {
     {   my @attrs = qw( id orbit type name image size water ore );
         @args{@attrs} = @{$d}{@attrs};
         $args{location} = Point->new( x => $d->{x}, y => $d->{y} );
+
+        $args{star} = LazyObject->new(
+            class => 'Star',
+            builder => 'new_from_id',
+            client => $client,
+            item => $d->{star_id},
+        );
     }
 
     my %owned; 
@@ -142,5 +155,7 @@ sub new_from_id {
     $class->new( %args, %owned );
 }
 
+__PACKAGE__->meta->make_immutable;
+no Moose;
 
 1;
